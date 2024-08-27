@@ -1,15 +1,11 @@
-SpeechRecognition==3.10.4
-pipwin
-gTTS
-google-generativeai
-python-dotenv
-streamlit
-pygame
 streamlit
 requests
-googlemaps
-google-search-results
-
+SpeechRecognition
+google-generativeai
+gTTS
+logging
+langchain
+playsound
 
 -e .
 
