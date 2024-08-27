@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import tempfile
 import requests
+import speech_recognition as sr
 import google.generativeai as genai
 from gtts import gTTS
 import logging
@@ -10,7 +11,6 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode, ClientSettings
 
 # Hardcoded API keys (not recommended for production use)
 SERPAPI_API_KEY = "051b76a9667a340722959b664fee5fc62927e4cd3d58e2cb045c29ac08d50ba0"
@@ -67,22 +67,24 @@ def load_api_key():
     return GOOGLE_API_KEY
 
 def voice_input():
-    class AudioProcessor(AudioProcessorBase):
-        def recv(self, frame):
-            # Process the audio frame here
-            pass
-
-    webrtc_streamer(
-        key="key",
-        mode=WebRtcMode.SENDONLY,
-        client_settings=ClientSettings(
-            media_stream_constraints={"audio": True, "video": False},
-        ),
-        audio_processor_factory=AudioProcessor,
-    )
-
-    # Note: Replace this return with actual audio processing and recognition
-    return "Sample text from voice input", True
+    r = sr.Recognizer()
+    try:
+        with sr.Microphone() as source:
+            logging.info("Listening... (Speak now or wait for 5 seconds to type manually)")
+            r.adjust_for_ambient_noise(source, duration=1)
+            audio = r.listen(source, timeout=5, phrase_time_limit=5)
+        text = r.recognize_google(audio)
+        logging.info(f"You said: {text}")
+        return text, True  # Return True to indicate voice input was used
+    except sr.WaitTimeoutError:
+        logging.warning("No speech detected. You can type your input instead.")
+        return None, False
+    except sr.UnknownValueError:
+        logging.error("Could not understand the audio")
+        return None, False
+    except sr.RequestError as e:
+        logging.error(f"Could not request results from Google Speech Recognition service: {e}")
+        return None, False
 
 def text_to_speech(text):
     try:
@@ -91,13 +93,14 @@ def text_to_speech(text):
             tts = gTTS(text=text, lang="en")
             temp_file_path = temp_file.name
             tts.save(temp_file_path)
+            logging.info("AI is speaking...")
 
-        # Streamlit audio playback
-        st.audio(temp_file_path, format="audio/mp3")
-        
+        # Return the temporary file path for Streamlit to play the audio
+        return temp_file_path
     except Exception as e:
         logging.error(f"Failed to convert text to speech: {e}")
         st.error(f"Failed to convert text to speech: {e}")
+        return None
 
 def llm_model_object(user_text):
     try:
@@ -149,21 +152,18 @@ def main():
     st.title("Conversational AI App")
     st.write("Ask me anything...")
 
-    # Add a text input box
     user_input = st.text_input("Type your question:")
-    
-    # Add a button to speak the question
     if st.button("Speak"):
-        user_input, used_voice = voice_input()
+        user_input, _ = voice_input()
 
-    # Process the input if it's available
     if user_input:
         response = process_query(user_input)
         if response:
             st.write(f"AI Response: {response}")
-            text_to_speech(response)
+            audio_path = text_to_speech(response)
+            if audio_path:
+                st.audio(audio_path, format="audio/mp3")
 
-        # Add a text input box for the next question
         st.text_input("Type your next question here:", key="next_question")
 
 if __name__ == '__main__':
