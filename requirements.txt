@@ -7,13 +7,13 @@
 # langchain
 
 langchain_google_genai
-SpeechRecognition==3.10.4
-gTTS==2.3.2
-google-generativeai==0.1.0
-python-dotenv==1.0.0
-streamlit==1.24.1
-requests==2.31.0
-googlemaps==4.10.0
+SpeechRecognition
+gTTS
+google-generativeai
+python-dotenv
+streamlit
+requests
+googlemaps
 pygame==2.5.0
 pyaudio==0.2.11  # Include only if you're sure it's required and supported by your server environment
 
