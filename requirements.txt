@@ -5,6 +5,8 @@ google-generativeai
 gTTS
 playsound
 langchain
+setuptools>=65.5.0
+wheel>=0.41.0
 
 
 -e .
