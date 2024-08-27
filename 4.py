@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import tempfile
 import requests
-import speech_recognition as sr
 import google.generativeai as genai
 from gtts import gTTS
 import logging
@@ -11,6 +10,7 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode, ClientSettings
 
 # Hardcoded API keys (not recommended for production use)
 SERPAPI_API_KEY = "051b76a9667a340722959b664fee5fc62927e4cd3d58e2cb045c29ac08d50ba0"
@@ -67,24 +67,22 @@ def load_api_key():
     return GOOGLE_API_KEY
 
 def voice_input():
-    r = sr.Recognizer()
-    try:
-        with sr.Microphone() as source:
-            logging.info("Listening... (Speak now or wait for 5 seconds to type manually)")
-            r.adjust_for_ambient_noise(source, duration=1)
-            audio = r.listen(source, timeout=5, phrase_time_limit=5)
-        text = r.recognize_google(audio)
-        logging.info(f"You said: {text}")
-        return text, True  # Return True to indicate voice input was used
-    except sr.WaitTimeoutError:
-        logging.warning("No speech detected. You can type your input instead.")
-        return None, False
-    except sr.UnknownValueError:
-        logging.error("Could not understand the audio")
-        return None, False
-    except sr.RequestError as e:
-        logging.error(f"Could not request results from Google Speech Recognition service: {e}")
-        return None, False
+    class AudioProcessor(AudioProcessorBase):
+        def recv(self, frame):
+            # Process the audio frame here
+            pass
+
+    webrtc_streamer(
+        key="key",
+        mode=WebRtcMode.SENDONLY,
+        client_settings=ClientSettings(
+            media_stream_constraints={"audio": True, "video": False},
+        ),
+        audio_processor_factory=AudioProcessor,
+    )
+
+    # Note: Replace this return with actual audio processing and recognition
+    return "Sample text from voice input", True
 
 def text_to_speech(text):
     try:
