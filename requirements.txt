@@ -9,6 +9,7 @@ pygame
 streamlit
 requests
 googlemaps
+google-search-results
 
 
 -e .
