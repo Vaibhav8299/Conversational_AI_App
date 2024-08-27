@@ -3,7 +3,7 @@ requests
 SpeechRecognition
 google-generativeai
 gTTS
-playsound
+
 langchain
 
 langchain_google_genai
