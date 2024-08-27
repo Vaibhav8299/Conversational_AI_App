@@ -11,6 +11,8 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import pyaudio
+import wave
 
 # Hardcoded API keys (not recommended for production use)
 SERPAPI_API_KEY = "051b76a9667a340722959b664fee5fc62927e4cd3d58e2cb045c29ac08d50ba0"
@@ -89,18 +91,30 @@ def voice_input():
 def text_to_speech(text):
     try:
         # Use a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
             tts = gTTS(text=text, lang="en")
             temp_file_path = temp_file.name
             tts.save(temp_file_path)
-            logging.info("AI response audio generated.")
+            logging.info("AI is speaking...")
 
-        # Read the audio file
-        with open(temp_file_path, "rb") as audio_file:
-            audio_bytes = audio_file.read()
+        # Play audio using PyAudio
+        chunk = 1024
+        wf = wave.open(temp_file_path, 'rb')
+        p = pyaudio.PyAudio()
 
-        # Display audio player in Streamlit
-        st.audio(audio_bytes, format='audio/mp3')
+        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                        channels=wf.getnchannels(),
+                        rate=wf.getframerate(),
+                        output=True)
+
+        data = wf.readframes(chunk)
+        while data:
+            stream.write(data)
+            data = wf.readframes(chunk)
+
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
 
         # Clean up the temporary file
         os.remove(temp_file_path)
@@ -120,20 +134,20 @@ def llm_model_object(user_text):
 
 def process_query(query):
     logging.info(f"Processing query: {query}")
-    
+
     try:
         # Step 1: Try to get response from the LLM model
         logging.info("Attempting to get a response from the LLM model...")
         llm_response = llm_model_object(query)
-        
+
         if llm_response and not needs_real_time_data(llm_response):
             logging.info("Response from LLM model obtained.")
             return llm_response
-        
+
         # If LLM response does not have real-time data, fetch data from SERP API
         logging.info("Fetching real-time data from SERP API...")
         serp_data = fetch_serp_data(query)
-        
+
         if serp_data:
             logging.info("Data fetched successfully. Processing data with AI agent...")
             # Process data with the agent
