@@ -11,8 +11,6 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-import pyaudio
-import wave
 
 # Hardcoded API keys (not recommended for production use)
 SERPAPI_API_KEY = "051b76a9667a340722959b664fee5fc62927e4cd3d58e2cb045c29ac08d50ba0"
@@ -43,7 +41,7 @@ serp_tool = Tool(
 
 # Define a prompt template
 prompt_template = PromptTemplate(
-    input_variables=["query", "data"], 
+    input_variables=["query", "data"],
     template="Analyze the following search data for the query '{query}' and generate insights: {data}"
 )
 
@@ -53,8 +51,8 @@ chain = LLMChain(llm=llm, prompt=prompt_template)
 # Initialize an agent
 tools = [serp_tool]
 agent = initialize_agent(
-    tools=tools, 
-    llm=llm, 
+    tools=tools,
+    llm=llm,
     agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     verbose=True,
     handle_parsing_errors=True
@@ -91,31 +89,18 @@ def voice_input():
 def text_to_speech(text):
     try:
         # Use a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
             tts = gTTS(text=text, lang="en")
             temp_file_path = temp_file.name
             tts.save(temp_file_path)
-            logging.info("AI is speaking...")
-
-        # Play audio using PyAudio
-        chunk = 1024
-        wf = wave.open(temp_file_path, 'rb')
-        p = pyaudio.PyAudio()
-
-        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                        channels=wf.getnchannels(),
-                        rate=wf.getframerate(),
-                        output=True)
-
-        data = wf.readframes(chunk)
-        while data:
-            stream.write(data)
-            data = wf.readframes(chunk)
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-
+        
+        logging.info("AI is speaking...")
+        
+        # Use Streamlit's audio playback
+        with open(temp_file_path, "rb") as audio_file:
+            audio_bytes = audio_file.read()
+        st.audio(audio_bytes, format="audio/mp3")
+        
         # Clean up the temporary file
         os.remove(temp_file_path)
     except Exception as e:
@@ -182,7 +167,7 @@ def main():
             st.write(f"AI Response: {response}")
             text_to_speech(response)
 
-        st.text_input("Type your next question here:", key="next_question")
+    st.text_input("Type your next question here:", key="next_question")
 
 if __name__ == '__main__':
     main()
