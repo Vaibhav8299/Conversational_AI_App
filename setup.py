@@ -13,6 +13,7 @@ setup(
         "playsound",
         "langchain",
         "setuptools>=65.0.0",
-        "wheel>=0.40.0"
+        "wheel>=0.40.0",
+        "langchain_google_genai"
     ],
 )
