@@ -1,0 +1,26 @@
+SpeechRecognition==3.10.4
+pipwin
+pyaudio
+gTTS
+google-generativeai
+python-dotenv
+streamlit
+pygame
+streamlit
+requests
+googlemaps
+
+
+-e .
+
+
+
+
+
+#conda create -p llmvoice python==3.11.2 -y
+
+#pip install -r requirements.txt
+#python gradio_app.py
+
+
+
