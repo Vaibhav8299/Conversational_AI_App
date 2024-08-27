@@ -10,7 +10,6 @@ setup(
         "SpeechRecognition",
         "google-generativeai",
         "gTTS",
-        "playsound",
         "langchain",
         "setuptools>=65.0.0",
         "wheel>=0.40.0",
