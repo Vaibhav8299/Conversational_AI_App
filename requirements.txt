@@ -3,9 +3,9 @@ requests
 SpeechRecognition
 google-generativeai
 gTTS
-logging
-langchain
 playsound
+langchain
+
 
 -e .
 
