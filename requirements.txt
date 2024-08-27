@@ -19,21 +19,29 @@
 # langchain
 # pyaudio
 # libav-tools
-streamlit 
-requests==2.31.0
+# streamlit 
+# requests==2.31.0
 
-SpeechRecognition==3.10.0
-google-generativeai==0.3.2
-gTTS==2.4.0
-langchain==0.1.0
-langchain-google-genai==0.0.5
-google-api-python-client==2.108.0
-protobuf==4.25.1
-# streamlit-webrtc
-PyAudio
-path_to_whl_file
-./requests-2.31.0-py3-none-any.whl
+# SpeechRecognition==3.10.0
+# google-generativeai==0.3.2
+# gTTS==2.4.0
+# langchain==0.1.0
+# langchain-google-genai==0.0.5
+# google-api-python-client==2.108.0
+# protobuf==4.25.1
+# # streamlit-webrtc
+# PyAudio
+# path_to_whl_file
 
+
+streamlit
+requests
+speechrecognition
+gtts
+google-generativeai
+langchain
+IPython
+pydub
 
 
 
