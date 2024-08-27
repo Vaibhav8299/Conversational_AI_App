@@ -19,7 +19,7 @@
 # langchain
 # pyaudio
 # libav-tools
-streamlit --upgrade
+streamlit 
 requests==2.31.0
 SpeechRecognition==3.10.0
 google-generativeai==0.3.2
