@@ -11,6 +11,8 @@ setup(
         "google-generativeai",
         "gTTS",
         "playsound",
-        "langchain"
+        "langchain",
+        "setuptools>=65.0.0",
+        "wheel>=0.40.0"
     ],
 )

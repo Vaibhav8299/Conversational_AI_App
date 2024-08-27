@@ -5,10 +5,10 @@ google-generativeai
 gTTS
 playsound
 langchain
-
 pandas
 numpy
-
+setuptools>=65.0.0
+wheel>=0.40.0
 
 
 -e .
