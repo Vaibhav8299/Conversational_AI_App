@@ -41,7 +41,7 @@ serp_tool = Tool(
 
 # Define a prompt template
 prompt_template = PromptTemplate(
-    input_variables=["query", "data"],
+    input_variables=["query", "data"], 
     template="Analyze the following search data for the query '{query}' and generate insights: {data}"
 )
 
@@ -51,8 +51,8 @@ chain = LLMChain(llm=llm, prompt=prompt_template)
 # Initialize an agent
 tools = [serp_tool]
 agent = initialize_agent(
-    tools=tools,
-    llm=llm,
+    tools=tools, 
+    llm=llm, 
     agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     verbose=True,
     handle_parsing_errors=True
@@ -93,16 +93,10 @@ def text_to_speech(text):
             tts = gTTS(text=text, lang="en")
             temp_file_path = temp_file.name
             tts.save(temp_file_path)
+
+        # Streamlit audio playback
+        st.audio(temp_file_path, format="audio/mp3")
         
-        logging.info("AI is speaking...")
-        
-        # Use Streamlit's audio playback
-        with open(temp_file_path, "rb") as audio_file:
-            audio_bytes = audio_file.read()
-        st.audio(audio_bytes, format="audio/mp3")
-        
-        # Clean up the temporary file
-        os.remove(temp_file_path)
     except Exception as e:
         logging.error(f"Failed to convert text to speech: {e}")
         st.error(f"Failed to convert text to speech: {e}")
@@ -119,20 +113,20 @@ def llm_model_object(user_text):
 
 def process_query(query):
     logging.info(f"Processing query: {query}")
-
+    
     try:
         # Step 1: Try to get response from the LLM model
         logging.info("Attempting to get a response from the LLM model...")
         llm_response = llm_model_object(query)
-
+        
         if llm_response and not needs_real_time_data(llm_response):
             logging.info("Response from LLM model obtained.")
             return llm_response
-
+        
         # If LLM response does not have real-time data, fetch data from SERP API
         logging.info("Fetching real-time data from SERP API...")
         serp_data = fetch_serp_data(query)
-
+        
         if serp_data:
             logging.info("Data fetched successfully. Processing data with AI agent...")
             # Process data with the agent
@@ -157,17 +151,22 @@ def main():
     st.title("Conversational AI App")
     st.write("Ask me anything...")
 
+    # Add a text input box
     user_input = st.text_input("Type your question:")
+    
+    # Add a button to speak the question
     if st.button("Speak"):
-        user_input, _ = voice_input()
+        user_input, used_voice = voice_input()
 
+    # Process the input if it's available
     if user_input:
         response = process_query(user_input)
         if response:
             st.write(f"AI Response: {response}")
             text_to_speech(response)
 
-    st.text_input("Type your next question here:", key="next_question")
+        # Add a text input box for the next question
+        st.text_input("Type your next question here:", key="next_question")
 
 if __name__ == '__main__':
     main()
